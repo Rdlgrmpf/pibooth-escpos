@@ -78,8 +78,8 @@ def state_processing_exit(app, cfg):
     LOGGER.info(SECTION + ": Width: {}, Height: {}, max_width: {}".format(im.width, im.height, max_width))
     if im.height < im.width: # landscape, needs to be rotated
         LOGGER.info(SECTION + ": Rotating")
-        im = im.rotate(90)
-    im = ImageOps.contain(im, (max_width, 1000))
+        im = im.rotate(90, expand=True)
+    im = ImageOps.contain(im, (max_width, 3000))
     if app.escpos_printer.profile.profile_data["features"]["graphics"]:
         impl = "graphics"
     elif app.escpos_printer.profile.profile_data["features"]["bitImageRaster"]:
