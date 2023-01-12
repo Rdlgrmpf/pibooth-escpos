@@ -75,9 +75,7 @@ def state_processing_exit(app, cfg):
     # Print the image
     im = app.previous_picture
     max_width = int(app.escpos_printer.profile.profile_data["media"]["width"]["pixels"])
-    LOGGER.info(SECTION + ": Width: {}, Height: {}, max_width: {}".format(im.width, im.height, max_width))
     if im.height < im.width: # landscape, needs to be rotated
-        LOGGER.info(SECTION + ": Rotating")
         im = im.rotate(90, expand=True)
     im = ImageOps.contain(im, (max_width, 3000))
     if app.escpos_printer.profile.profile_data["features"]["graphics"]:
@@ -86,19 +84,17 @@ def state_processing_exit(app, cfg):
         impl = "bitImageRaster"
     else:
         impl = "bitImageColumn"
-    d = Dummy()
+
     for i in range(app.escpos_copies):
-        d.image(im, impl=impl)
+        app.escpos_printer.image(im, impl=impl)
         if app.escpos_print_qr:
-            d.cut(mode="PART")
-            d.text("Download: " + app.escpos_qr_URL.format(name=name, token=token))
-            d.qr(app.escpos_qr_URL.format(name=name, token=token), center=True, impl=impl)
-            d.text("Scan me!")
+            app.escpos_printer.cut(mode="PART")
+            app.escpos_printer.text("Download: " + app.escpos_qr_URL.format(name=name, token=token))
+            app.escpos_printer.qr(app.escpos_qr_URL.format(name=name, token=token), center=True, impl=impl)
+            app.escpos_printer.text("Scan me!")
         if i != app.escpos_copies - 1:
-            d.cut(mode="PART")
-    d.cut(mode="FULL")
-    app.escpos_printer._raw(d.output)
-    d.close()
+            app.escpos_printer.cut(mode="PART")
+    app.escpos_printer.cut(mode="FULL")
 
 
 @pibooth.hookimpl
