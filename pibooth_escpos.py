@@ -91,8 +91,9 @@ def state_processing_exit(app, cfg):
         d.image(im, impl=impl)
         if app.escpos_print_qr:
             d.cut(mode="PART")
-            d.text(app.escpos_qr_URL.format(name=name, token=token))
+            d.text("Download: " + app.escpos_qr_URL.format(name=name, token=token))
             d.qr(app.escpos_qr_URL.format(name=name, token=token), center=True, impl=impl)
+            d.text("Scan me!")
         if i != app.escpos_copies - 1:
             d.cut(mode="PART")
     d.cut(mode="FULL")
