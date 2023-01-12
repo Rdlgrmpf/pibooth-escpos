@@ -89,8 +89,10 @@ def state_processing_exit(app, cfg):
         app.escpos_printer.image(im, impl=impl)
         if app.escpos_print_qr:
             app.escpos_printer.cut(mode="PART")
+            app.escpos_printer.set(align='left')
             app.escpos_printer.text("Download: " + app.escpos_qr_URL.format(name=name, token=token))
             app.escpos_printer.qr(app.escpos_qr_URL.format(name=name, token=token), center=True, impl=impl)
+            app.escpos_printer.set(align='center')
             app.escpos_printer.text("Scan me!")
         if i != app.escpos_copies - 1:
             app.escpos_printer.cut(mode="PART")
