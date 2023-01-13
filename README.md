@@ -1,6 +1,9 @@
 # pibooth-escpos
 Print the final picture with a thermal printer. It can also print a QR code with the direct link to the image.
-Generates an access token and stores it in a csv file.
+Generates an access token and stores it in a csv file. The access token can be included in the URL stored in the QR code. Another downloadbackend can then look it up and only serve the image with the corresponding access token, effectively preventing crawling.
+
+Sample:
+![PXL_20230113_001112423](https://user-images.githubusercontent.com/1148219/212208175-f219a467-d485-4ebd-9ea1-ab5755062800.jpg)
 
 ## Requirements
 This assumes that you have setup the printer with a configuration file according to https://python-escpos.readthedocs.io/en/latest/user/usage.html#configuration-file .
