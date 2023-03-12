@@ -96,7 +96,8 @@ def state_processing_exit(app, cfg):
             app.escpos_printer.text("Scan me!")
         if i != app.escpos_copies - 1:
             app.escpos_printer.cut(mode="PART")
-    app.escpos_printer.cut(mode="FULL")
+    # PART for vertical mount; FULL for horizontal
+    app.escpos_printer.cut(mode="PART")
 
 
 @pibooth.hookimpl
