@@ -29,6 +29,7 @@ def pibooth_configure(cfg):
     cfg.add_option(SECTION, 'print_qr', True, "Print a QR Code with the link?")
     cfg.add_option(SECTION, 'qr_URL', '', "The URL string used for the qr code. Supports formatting, inserts filename (name) and a generated token (token).")
     cfg.add_option(SECTION, 'db_file', 'token.csv', "Absolute path to file that stores the filename token combinations")
+    cfg.add_option(SECTION, 'impl', '', "Use a specific implementation for image printing. graphics, bitImageRaster or bitImageColumn")
 
 
 @pibooth.hookimpl
@@ -39,6 +40,7 @@ def pibooth_startup(app, cfg):
     print_qr = cfg.getboolean(SECTION, 'print_qr')
     qr_URL = cfg.get(SECTION, 'qr_URL')
     db_file = cfg.getpath(SECTION, 'db_file')
+    impl = cfg.getpath(SECTION, 'impl')
 
     if not qr_URL:
         LOGGER.error("QR URL not defined in ["+SECTION+"][qr_URL], QR printing disabled")
@@ -48,6 +50,8 @@ def pibooth_startup(app, cfg):
         LOGGER.info(SECTION + ": Print QR: {}".format(print_qr))
         LOGGER.info(SECTION + ": QR URL: {}".format(qr_URL))
         LOGGER.info(SECTION + ": DB File: {}".format(db_file))
+        if len(impl) != 0:
+            LOGGER.info(SECTION + ": Image Impl: {}".format(impl))
         if not os.path.exists(db_file):
             LOGGER.info(SECTION + ": DB file {} not found. Creating it with header.".format(db_file))
             with open(db_file, 'w', newline='') as fd:
@@ -59,6 +63,8 @@ def pibooth_startup(app, cfg):
         app.escpos_print_qr = print_qr
         app.escpos_qr_URL = qr_URL
         app.escpos_db_file = db_file
+        if len(impl) != 0:
+            app.escpos_impl = impl
 
 
 
@@ -78,12 +84,15 @@ def state_processing_exit(app, cfg):
     if im.height < im.width: # landscape, needs to be rotated
         im = im.rotate(90, expand=True)
     im = ImageOps.contain(im, (max_width, 3000))
-    if app.escpos_printer.profile.profile_data["features"]["graphics"]:
-        impl = "graphics"
-    elif app.escpos_printer.profile.profile_data["features"]["bitImageRaster"]:
-        impl = "bitImageRaster"
+    if app.escpos_impl:
+        impl = app.escpos_impl
     else:
-        impl = "bitImageColumn"
+        if app.escpos_printer.profile.profile_data["features"]["graphics"]:
+            impl = "graphics"
+        elif app.escpos_printer.profile.profile_data["features"]["bitImageRaster"]:
+            impl = "bitImageRaster"
+        else:
+            impl = "bitImageColumn"
     
     for i in range(app.escpos_copies):
         app.escpos_printer.image(im, impl=impl)
